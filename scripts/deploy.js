@@ -1,5 +1,5 @@
 
-const { ethers } = require("hardhat");
+const { ethers,artifacts } = require("hardhat");
 
 async function main() {
   // This is just a convenience check
@@ -11,7 +11,6 @@ async function main() {
     );
   }
 
-  // ethers is available in the global scope
   const [deployer] = await ethers.getSigners();
   console.log(
     "Deploying the contracts with the account:",
@@ -28,7 +27,6 @@ async function main() {
   // initialize
   voteCoin.instance.mint(voting.address,10000);
   voteGift.instance.transferOwnership(voting.address);
-
 }
 
 async function deploy(contractName,...args){
@@ -38,26 +36,28 @@ async function deploy(contractName,...args){
 
   console.log(contractName + " deployed address:", token.address);
 
+  saveFrontendFiles(contractName,token);
+
   return {"instance":token,"address":token.address};
 }
 
-function saveFrontendFiles(token) {
+function saveFrontendFiles(contractName,contranctInstance) {
   const fs = require("fs");
   const contractsDir = __dirname + "/../frontend/src/contracts";
 
   if (!fs.existsSync(contractsDir)) {
-    fs.mkdirSync(contractsDir);
+    fs.mkdirSync(contractsDir,{ recursive: true });
   }
 
   fs.writeFileSync(
-    contractsDir + "/contract-address.json",
-    JSON.stringify({ token: token.address }, undefined, 2)
+    contractsDir + "/"+ contractName +"-Address.json",
+    JSON.stringify({ address: contranctInstance.address }, undefined, 2)
   );
 
-  const TokenArtifact = artifacts.readArtifactSync(token);
+  const TokenArtifact = artifacts.readArtifactSync(contractName);
 
   fs.writeFileSync(
-    contractsDir + "/"+ token +".json",
+    contractsDir + "/"+ contractName +".json",
     JSON.stringify(TokenArtifact, null, 2)
   );
 }
