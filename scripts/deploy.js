@@ -25,8 +25,8 @@ async function main() {
   let voting = await deploy("Voting",["Satoshi","Vitalik"],voteCoin.address,voteGift.address,ethers.utils.parseEther("0.001"));
   
   // initialize
-  voteCoin.instance.mint(voting.address,10000);
-  voteGift.instance.transferOwnership(voting.address);
+  await voteCoin.instance.mint(voting.address,10000);
+  await voteGift.instance.transferOwnership(voting.address);
 }
 
 async function deploy(contractName,...args){
@@ -36,6 +36,7 @@ async function deploy(contractName,...args){
 
   console.log(contractName + " deployed address:", token.address);
 
+  //save contract address and artifact
   saveFrontendFiles(contractName,token);
 
   return {"instance":token,"address":token.address};
